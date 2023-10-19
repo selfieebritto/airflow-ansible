@@ -1,0 +1,41 @@
+- name: Update YUM package cache
+  yum:
+    name: '*'
+    state: latest
+  become: yes
+
+- name: Check if Python 3 is installed
+  command: python3 --version
+  ignore_errors: yes
+  register: python_check
+
+- name: Install Python 3 if not installed
+  yum:
+    name: python3
+    state: present
+  become: yes
+  when: "'Python 3' not in python_check.stderr"
+
+- name: Check if Python 3 pip is installed
+  command: pip3 --version
+  ignore_errors: yes
+  register: pip_check
+
+- name: Install Python 3 pip if not installed
+  yum:
+    name: python3-pip
+    state: present
+  become: yes
+  when: "'Python 3 pip' not in pip_check.stderr"
+
+- name: Check if Python 3 venv is installed
+  command: virtualenv --version
+  ignore_errors: yes
+  register: venv_check
+
+- name: Install Python 3 virtualenv if not installed
+  yum:
+    name: python3-virtualenv
+    state: present
+  become: yes
+  when: "'Python 3 pip' not in venv_check.stderr"

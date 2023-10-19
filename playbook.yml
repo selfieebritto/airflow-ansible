@@ -1,0 +1,7 @@
+---
+- name: Initialize Amazon Linux Servers
+  hosts: localhost
+  become: yes
+  roles:
+    - init
+    - database

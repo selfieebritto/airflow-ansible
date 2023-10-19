@@ -1,0 +1,36 @@
+- name: Install PostgreSQL server
+  yum:
+    name: postgresql15-server
+    state: present
+  become: yes
+
+- name: Initialize PostgreSQL database
+  command: postgresql-setup initdb
+  become: yes
+  when: not (ansible_distribution == 'Amazon' and ansible_distribution_major_version == '2')
+
+- name: Start and enable PostgreSQL service
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Create the "airflow" database
+  postgresql_db:
+    name: airflow
+  become: yes
+
+- name: Generate a random strong password
+  set_fact:
+    generated_password: "{{ lookup('community.general.random_string', length=12, min_lower=1, min_upper=1, min_numeric=1, min_special=1, override_special='-_=+!#$()[]') }}"
+- name: Create the "airflow_user" with a generated password
+  postgresql_user:
+    name: airflow_user
+    password: "{{ generated_password }}"
+    db: airflow
+  become: yes
+
+- name: Output the generated password
+  debug:
+    var: generated_password
